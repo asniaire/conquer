@@ -6,7 +6,7 @@ import com.asniaire.conquer.domain.player.Player
 data class Coordinates(val x: Int, val y: Int)
 
 class Strategy constructor(
-    val initialPosition: Coordinates,
+    val initialCoordinates: Coordinates,
     strategySteps: List<StrategyStep>,
     private val defaultAction: Action
 ) {

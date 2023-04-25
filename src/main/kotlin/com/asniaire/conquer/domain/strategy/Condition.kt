@@ -48,7 +48,7 @@ class ConqueredCellsCondition(
     private val player: Player
 ) : Condition(comparison, value) {
     override fun isFulfilled(gameBoard: GameBoard) =
-        comparison.operation(value, gameBoard.occupiedCellsByUser(player))
+        comparison.operation(value, gameBoard.conqueredCellsByUser(player))
 }
 
 

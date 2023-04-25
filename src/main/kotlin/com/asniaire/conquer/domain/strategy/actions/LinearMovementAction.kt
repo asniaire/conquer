@@ -7,8 +7,7 @@ import com.asniaire.conquer.domain.strategy.Coordinates
 
 class LinearMovementAction(private val direction: Direction) : Action {
     override fun perform(player: Player, gameBoard: GameBoard) {
-        val currentCoordinates = gameBoard.getPlayerCoordinates(player) ?: TODO()
-        val nextCoordinates = nextCoordinates(currentCoordinates, gameBoard)
+        val nextCoordinates = nextCoordinates(player.currentCoordinates, gameBoard)
         gameBoard.conquer(nextCoordinates, player)
     }
 
@@ -26,7 +25,7 @@ class LinearMovementAction(private val direction: Direction) : Action {
             Direction.SOUTH_EAST -> currentPosition.copy(x = x + 1, y = y + 1)
         }
         if (nextCoordinates.x < 0 || nextCoordinates.x >= gameBoard.width || nextCoordinates.y < 0 || nextCoordinates.y >= gameBoard.height) {
-            throw Exception() // TODO
+            TODO("Error")
         }
         return nextCoordinates
     }

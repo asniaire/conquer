@@ -7,8 +7,7 @@ import com.asniaire.conquer.domain.strategy.Coordinates
 
 class ExpandNearestCellAction() : Action {
     override fun perform(player: Player, gameBoard: GameBoard) {
-        val currentCoordinates = gameBoard.getPlayerCoordinates(player) ?: TODO()
-        val neighborsCoordinates = neighbors(currentCoordinates, gameBoard)
+        val neighborsCoordinates = neighbors(player.currentCoordinates, gameBoard)
         val randomCoordinates = neighborsCoordinates.random()
         gameBoard.conquer(randomCoordinates, player)
     }

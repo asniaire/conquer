@@ -2,13 +2,20 @@ package com.asniaire.conquer.domain.board
 
 import com.asniaire.conquer.domain.player.Player
 import com.asniaire.conquer.domain.strategy.Coordinates
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
+import kotlin.random.Random
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+const val TIME_BETWEEN_MOVES_SECONDS = 1
+
 
 class GameBoard(
     val name: String,
     private val cells: Array<Array<GameCell>>,
     players: List<Player>
 ) {
-    var occupiedCells: Int = 0
+    var conqueredCells: Int = 0
         private set
 
     val width = cells.size
@@ -17,28 +24,18 @@ class GameBoard(
     val totalCells = width * height
 
     val remainingCells: Int
-        get() = totalCells - occupiedCells
+        get() = totalCells - conqueredCells
 
     val isGameFinished: Boolean = remainingCells == 0
 
     val players = players.toMutableList()
-    private val currentCellByPlayer: Map<Player, GameCell> =
-        players.associateWith { getCellByCoordinates(it.strategy.initialPosition) }
 
     private val failuresByPlayer = players.associateWith { 0 }.toMutableMap()
     private val cellsConqueredByPlayer =
         players.associateWith<Player, MutableList<GameCell>> { mutableListOf() }.toMutableMap()
 
-    private fun getCellFromCoordinates(coordinates: Coordinates) =
-        cells[coordinates.x][coordinates.y]
-
-
-    fun occupiedCellsByUser(player: Player): Int {
-        TODO()
-    }
-
-    fun getPlayerCoordinates(player: Player) =
-        currentCellByPlayer[player]?.coordinates
+    fun conqueredCellsByUser(player: Player) =
+        cellsConqueredByPlayer[player]?.size ?: TODO("Not found")
 
     fun conquer(coordinates: Coordinates, player: Player) {
         if (!playerInBoard(player)) {
@@ -62,17 +59,19 @@ class GameBoard(
         }
     }
 
-    private fun getCellByCoordinates(coordinates: Coordinates) =
-        cells[coordinates.x][coordinates.y]
-
     private fun conquerCell(player: Player, gameCell: GameCell) {
         gameCell.conquer(player)
 
-        val conqueredCells = cellsConqueredByPlayer[player] ?: TODO()
-        conqueredCells.add(gameCell)
+        val conqueredCellsByPlayer = cellsConqueredByPlayer[player] ?: TODO()
+        conqueredCellsByPlayer.add(gameCell)
 
-        occupiedCells.inc()
+        player.currentCoordinates = gameCell.coordinates
+
+        conqueredCells.inc()
     }
+
+    private fun getCellByCoordinates(coordinates: Coordinates) =
+        cells[coordinates.x][coordinates.y]
 
     private fun incrementFailures(player: Player) {
         val failures = failuresByPlayer[player] ?: TODO()
@@ -92,5 +91,18 @@ class GameBoard(
             .flatMap { it.asList() }
             .filter { !it.isConquered }
             .random()
+    }
+
+    suspend fun simulate() {
+        var currentPlayerIndex = Random.nextInt(players.size)
+
+        withTimeout(3.minutes) {
+            while (!isGameFinished) {
+                val currentPlayer = players[currentPlayerIndex]
+                currentPlayer.runNextMovement(this@GameBoard)
+                currentPlayerIndex = (currentPlayerIndex + 1) % players.size
+                delay(TIME_BETWEEN_MOVES_SECONDS.seconds)
+            }
+        }
     }
 }
