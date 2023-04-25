@@ -5,7 +5,7 @@ import com.asniaire.conquer.domain.avatar.AvatarId
 import com.asniaire.conquer.domain.avatar.AvatarName
 import com.asniaire.conquer.domain.board.Boost
 import com.asniaire.conquer.domain.board.BattleBoard
-import com.asniaire.conquer.domain.board.GameCell
+import com.asniaire.conquer.domain.board.BoardCell
 import com.asniaire.conquer.domain.player.Player
 import com.asniaire.conquer.domain.strategy.actions.ConquerCellAction
 
@@ -39,7 +39,16 @@ sealed class Condition(val comparison: Comparison, val value: Int) {
 
 class RemainingCellsCondition(comparison: Comparison, value: Int) : Condition(comparison, value) {
     override fun isFulfilled(battleBoard: BattleBoard) =
-        comparison.operation(value, battleBoard.remainingCells)
+        comparison.operation(battleBoard.remainingCells, value)
+}
+
+class ConqueredByUserCellsCondition(
+    value: Int,
+    comparison: Comparison,
+    private val player: Player
+) : Condition(comparison, value) {
+    override fun isFulfilled(battleBoard: BattleBoard) =
+        comparison.operation(battleBoard.conqueredCellsByUser(player), value)
 }
 
 class ConqueredCellsCondition(
@@ -48,7 +57,7 @@ class ConqueredCellsCondition(
     private val player: Player
 ) : Condition(comparison, value) {
     override fun isFulfilled(battleBoard: BattleBoard) =
-        comparison.operation(value, battleBoard.conqueredCellsByUser(player))
+        comparison.operation(battleBoard.conqueredCells, value)
 }
 
 
@@ -59,7 +68,7 @@ fun test() {
     val action = ConquerCellAction(Coordinates(1, 1))
     val strategyStep = StrategyStep(listOf(condition), action, 1)
 
-    val cell11 = GameCell(Coordinates(1, 1), Boost())
+    val cell11 = BoardCell(Coordinates(1, 1), Boost())
     val cells = arrayOf(arrayOf(cell11))
     val strategy = Strategy(Coordinates(1, 1), listOf(strategyStep), action)
     val avatar1 = Avatar(AvatarId.fromString("avatar-1"), AvatarName("Ossy"))

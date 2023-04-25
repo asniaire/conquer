@@ -24,7 +24,7 @@ class LinearMovementAction(private val direction: Direction) : Action {
             Direction.SOUTH_WEST -> currentPosition.copy(x = x - 1, y = y + 1)
             Direction.SOUTH_EAST -> currentPosition.copy(x = x + 1, y = y + 1)
         }
-        if (nextCoordinates.x < 0 || nextCoordinates.x >= battleBoard.width || nextCoordinates.y < 0 || nextCoordinates.y >= battleBoard.height) {
+        if (nextCoordinates.x < 1 || nextCoordinates.x > battleBoard.width || nextCoordinates.y < 1 || nextCoordinates.y > battleBoard.height) {
             TODO("Error")
         }
         return nextCoordinates

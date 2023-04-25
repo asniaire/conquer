@@ -8,11 +8,14 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 const val TIME_BETWEEN_MOVES_SECONDS = 1
+const val HIT = true
+const val MISS = false
 
+data class Movement(val isHit: Boolean, val coordinates: Coordinates)
 
 class BattleBoard(
     val name: String,
-    private val cells: Array<Array<GameCell>>,
+    private val cells: Array<Array<BoardCell>>,
     players: List<Player>
 ) {
     var conqueredCells: Int = 0
@@ -30,9 +33,11 @@ class BattleBoard(
 
     val players = players.toMutableList()
 
+    private val movementsByPlayer =
+        players.associateWith<Player, MutableList<Movement>> { mutableListOf() }.toMutableMap()
     private val failuresByPlayer = players.associateWith { 0 }.toMutableMap()
     private val cellsConqueredByPlayer =
-        players.associateWith<Player, MutableList<GameCell>> { mutableListOf() }.toMutableMap()
+        players.associateWith<Player, MutableList<BoardCell>> { mutableListOf() }.toMutableMap()
 
     fun conqueredCellsByUser(player: Player) =
         cellsConqueredByPlayer[player]?.size ?: TODO("Not found")
@@ -47,31 +52,45 @@ class BattleBoard(
         }
 
         val gameCell = getCellByCoordinates(coordinates)
-        checkIfAlreadyConquered(gameCell, player)
+        checkIfCellsAlreadyConquered(gameCell, player)
 
         conquerCell(player, gameCell)
     }
 
-    private fun checkIfAlreadyConquered(gameCell: GameCell, player: Player) {
-        if (gameCell.isConquered) {
+    private fun checkIfCellsAlreadyConquered(boardCell: BoardCell, player: Player) {
+        if (boardCell.isConquered) {
             incrementFailures(player)
+
+            addMovementToPlayer(player, boardCell, MISS)
+
             TODO("Manage errors")
         }
     }
 
-    private fun conquerCell(player: Player, gameCell: GameCell) {
-        gameCell.conquer(player)
+    private fun conquerCell(player: Player, boardCell: BoardCell) {
+        boardCell.conquer(player)
 
         val conqueredCellsByPlayer = cellsConqueredByPlayer[player] ?: TODO()
-        conqueredCellsByPlayer.add(gameCell)
+        conqueredCellsByPlayer.add(boardCell)
 
-        player.currentCoordinates = gameCell.coordinates
+        addMovementToPlayer(player, boardCell, HIT)
+
+        player.currentCoordinates = boardCell.coordinates
 
         conqueredCells.inc()
     }
 
+    private fun addMovementToPlayer(
+        player: Player,
+        boardCell: BoardCell,
+        hit: Boolean
+    ) {
+        val movementsDoneByPlayer = movementsByPlayer[player] ?: TODO()
+        movementsDoneByPlayer.add(Movement(hit, boardCell.coordinates))
+    }
+
     private fun getCellByCoordinates(coordinates: Coordinates) =
-        cells[coordinates.x][coordinates.y]
+        cells[coordinates.x - 1][coordinates.y - 1]
 
     private fun incrementFailures(player: Player) {
         val failures = failuresByPlayer[player] ?: TODO()
@@ -79,14 +98,14 @@ class BattleBoard(
     }
 
     private fun validPositionInBoard(coordinates: Coordinates) =
-        cells.getOrNull(coordinates.x)?.getOrNull(coordinates.y) != null
+        cells.getOrNull(coordinates.x - 1)?.getOrNull(coordinates.y - 1) != null
 
 
     private fun playerInBoard(player: Player) =
         players.contains(player)
 
 
-    fun getRandomFreeCell(): GameCell {
+    fun getRandomFreeCell(): BoardCell {
         return cells
             .flatMap { it.asList() }
             .filter { !it.isConquered }

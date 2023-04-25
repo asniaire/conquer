@@ -8,7 +8,6 @@ data class Player(val avatar: Avatar, private val strategy: Strategy) {
 
     var currentCoordinates = strategy.initialCoordinates
     fun runNextMovement(battleBoard: BattleBoard) {
-        strategy.applyNextStrategy(this, battleBoard)
+        strategy.applyStrategy(this, battleBoard)
     }
-
 }

@@ -30,7 +30,7 @@ class Strategy constructor(
         }
     }
 
-    fun applyNextStrategy(player: Player, battleBoard: BattleBoard) =
+    fun applyStrategy(player: Player, battleBoard: BattleBoard) =
         strategies.firstOrNull { it.conditions.all { cond -> cond.isFulfilled(battleBoard) } }
             .let {
                 it?.action?.perform(player, battleBoard) ?: defaultAction.perform(player, battleBoard)
