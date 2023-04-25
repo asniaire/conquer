@@ -10,7 +10,7 @@ import kotlin.time.Duration.Companion.seconds
 const val TIME_BETWEEN_MOVES_SECONDS = 1
 
 
-class GameBoard(
+class BattleBoard(
     val name: String,
     private val cells: Array<Array<GameCell>>,
     players: List<Player>
@@ -79,7 +79,7 @@ class GameBoard(
     }
 
     private fun validPositionInBoard(coordinates: Coordinates) =
-        (cells.getOrNull(coordinates.x)?.getOrNull(coordinates.y) != null) ?: false
+        cells.getOrNull(coordinates.x)?.getOrNull(coordinates.y) != null
 
 
     private fun playerInBoard(player: Player) =
@@ -99,7 +99,7 @@ class GameBoard(
         withTimeout(3.minutes) {
             while (!isGameFinished) {
                 val currentPlayer = players[currentPlayerIndex]
-                currentPlayer.runNextMovement(this@GameBoard)
+                currentPlayer.runNextMovement(this@BattleBoard)
                 currentPlayerIndex = (currentPlayerIndex + 1) % players.size
                 delay(TIME_BETWEEN_MOVES_SECONDS.seconds)
             }

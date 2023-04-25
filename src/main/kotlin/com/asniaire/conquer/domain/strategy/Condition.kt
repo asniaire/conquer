@@ -4,7 +4,7 @@ import com.asniaire.conquer.domain.avatar.Avatar
 import com.asniaire.conquer.domain.avatar.AvatarId
 import com.asniaire.conquer.domain.avatar.AvatarName
 import com.asniaire.conquer.domain.board.Boost
-import com.asniaire.conquer.domain.board.GameBoard
+import com.asniaire.conquer.domain.board.BattleBoard
 import com.asniaire.conquer.domain.board.GameCell
 import com.asniaire.conquer.domain.player.Player
 import com.asniaire.conquer.domain.strategy.actions.ConquerCellAction
@@ -34,12 +34,12 @@ enum class Comparison {
 }
 
 sealed class Condition(val comparison: Comparison, val value: Int) {
-    abstract fun isFulfilled(gameBoard: GameBoard): Boolean
+    abstract fun isFulfilled(battleBoard: BattleBoard): Boolean
 }
 
 class RemainingCellsCondition(comparison: Comparison, value: Int) : Condition(comparison, value) {
-    override fun isFulfilled(gameBoard: GameBoard) =
-        comparison.operation(value, gameBoard.remainingCells)
+    override fun isFulfilled(battleBoard: BattleBoard) =
+        comparison.operation(value, battleBoard.remainingCells)
 }
 
 class ConqueredCellsCondition(
@@ -47,8 +47,8 @@ class ConqueredCellsCondition(
     comparison: Comparison,
     private val player: Player
 ) : Condition(comparison, value) {
-    override fun isFulfilled(gameBoard: GameBoard) =
-        comparison.operation(value, gameBoard.conqueredCellsByUser(player))
+    override fun isFulfilled(battleBoard: BattleBoard) =
+        comparison.operation(value, battleBoard.conqueredCellsByUser(player))
 }
 
 
@@ -67,5 +67,5 @@ fun test() {
     val player1 = Player(avatar1, strategy)
     val player2 = Player(avatar2, strategy)
 
-    val gameBoard = GameBoard("Test", cells, listOf(player1, player2))
+    BattleBoard("Test", cells, listOf(player1, player2))
 }

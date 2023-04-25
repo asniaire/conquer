@@ -6,16 +6,16 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-class GameSimulator(private val gameBoard: GameBoard) {
+class GameSimulator(private val battleBoard: BattleBoard) {
 
     suspend fun simulate() {
-        val players = gameBoard.players
+        val players = battleBoard.players
         var currentPlayerIndex = Random.nextInt(players.size)
 
         withTimeout(3.minutes) {
-            while (!gameBoard.isGameFinished) {
+            while (!battleBoard.isGameFinished) {
                 val currentPlayer = players[currentPlayerIndex]
-                currentPlayer.runNextMovement(gameBoard)
+                currentPlayer.runNextMovement(battleBoard)
                 currentPlayerIndex = (currentPlayerIndex + 1) % players.size
                 delay(1.seconds)
             }

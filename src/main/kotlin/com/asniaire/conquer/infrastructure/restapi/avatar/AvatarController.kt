@@ -9,8 +9,7 @@ import java.util.*
 class AvatarController(private val createAvatar: CreateAvatar) {
 
     @PostMapping("/avatar")
-    suspend fun createAvatar() : String {
+    suspend fun createAvatar(): String {
         return createAvatar(UUID.randomUUID().toString(), "Test", "asdf")
     }
-
 }

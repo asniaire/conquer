@@ -1,17 +1,17 @@
 package com.asniaire.conquer.domain.strategy.actions
 
-import com.asniaire.conquer.domain.board.GameBoard
+import com.asniaire.conquer.domain.board.BattleBoard
 import com.asniaire.conquer.domain.player.Player
 import com.asniaire.conquer.domain.strategy.Action
 import com.asniaire.conquer.domain.strategy.Coordinates
 
 class LinearMovementAction(private val direction: Direction) : Action {
-    override fun perform(player: Player, gameBoard: GameBoard) {
-        val nextCoordinates = nextCoordinates(player.currentCoordinates, gameBoard)
-        gameBoard.conquer(nextCoordinates, player)
+    override fun perform(player: Player, battleBoard: BattleBoard) {
+        val nextCoordinates = nextCoordinates(player.currentCoordinates, battleBoard)
+        battleBoard.conquer(nextCoordinates, player)
     }
 
-    private fun nextCoordinates(currentPosition: Coordinates, gameBoard: GameBoard): Coordinates {
+    private fun nextCoordinates(currentPosition: Coordinates, battleBoard: BattleBoard): Coordinates {
         val x = currentPosition.x
         val y = currentPosition.y
         val nextCoordinates = when (direction) {
@@ -24,7 +24,7 @@ class LinearMovementAction(private val direction: Direction) : Action {
             Direction.SOUTH_WEST -> currentPosition.copy(x = x - 1, y = y + 1)
             Direction.SOUTH_EAST -> currentPosition.copy(x = x + 1, y = y + 1)
         }
-        if (nextCoordinates.x < 0 || nextCoordinates.x >= gameBoard.width || nextCoordinates.y < 0 || nextCoordinates.y >= gameBoard.height) {
+        if (nextCoordinates.x < 0 || nextCoordinates.x >= battleBoard.width || nextCoordinates.y < 0 || nextCoordinates.y >= battleBoard.height) {
             TODO("Error")
         }
         return nextCoordinates
